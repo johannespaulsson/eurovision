@@ -4,26 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eurovision 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap" rel="stylesheet">
     <style>
-        :root { --purple: #3a0063; --gold: #ffd700; }
-        body { font-family: sans-serif; background: #1a002b; color: white; padding: 10px; text-align: center; }
-        .card { background: #3a0063; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        input, select, button { padding: 12px; border-radius: 8px; border: none; width: 100%; margin: 5px 0; box-sizing: border-box; }
-        button { background: #ffd700; font-weight: bold; cursor: pointer; border: none; }
-        #app { max-width: 500px; margin: 0 auto; }
+        :root {
+            --bg: #0f0518;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --gold: #ffc107;
+            --accent: #e91e63;
+            --text: #ffffff;
+        }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        #app { width: 100%; max-width: 450px; }
+        h1 { text-align: center; color: var(--gold); font-size: 2rem; margin-bottom: 20px; }
+        .login-box { background: var(--card-bg); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .card { background: var(--card-bg); padding: 15px; margin-bottom: 12px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .card:hover { border-color: var(--gold); }
+        input, select, button { padding: 14px; border-radius: 12px; border: 1px solid #444; width: 100%; margin: 10px 0; background: #1a1025; color: white; font-size: 16px; }
+        button { background: linear-gradient(45deg, var(--accent), var(--purple)); color: white; border: none; font-weight: 600; cursor: pointer; }
+        select { background-image: none; cursor: pointer; width: auto; }
+        h2 { font-size: 1.2rem; color: #bbb; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div id="app">
         <h1>Eurovision 2026</h1>
-        <input type="text" id="name" placeholder="Ditt namn">
-        <button onclick="join()">Gå med</button>
+        <div class="login-box">
+            <input type="text" id="name" placeholder="Ditt namn">
+            <button onclick="join()">Börja rösta</button>
+        </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxDy6JBpEJaRTYOJs03nwUAdUHdghRn10",
@@ -33,18 +46,15 @@
             messagingSenderId: "792172036315",
             appId: "1:792172036315:web:a3c5ddaf8ebe1a077c4cfe"
         };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.db = db;
+        window.db = getFirestore(initializeApp(firebaseConfig));
         window.doc = doc;
         window.setDoc = setDoc;
-        window.onSnapshot = onSnapshot;
     </script>
 
     <script>
         const countries = ["Danmark", "Tyskland", "Israel", "Belgien", "Albanien", "Grekland", "Ukraina", "Australien", "Serbien", "Malta", "Tjeckien", "Bulgarien", "Kroatien", "Storbritannien", "Frankrike", "Moldavien", "Finland", "Polen", "Litauen", "Sverige", "Cypern", "Italien", "Norge", "Rumänien", "Österrike"];
-        
+        let myVotes = {};
+
         window.join = () => {
             const name = document.getElementById('name').value;
             if(!name) return;
@@ -53,27 +63,33 @@
         };
 
         window.vote = async (country, pts) => {
+            if (pts !== "" && Object.values(myVotes).includes(pts)) {
+                alert("Du har redan gett " + pts + " poäng till ett annat land!");
+                render();
+                return;
+            }
+            myVotes[country] = pts;
             const user = localStorage.getItem('user');
-            await window.setDoc(window.doc(window.db, "votes", user), { [country]: pts }, { merge: true });
-        };
-
-        window.reveal = () => {
-            if(document.getElementById('pass').value === 'stek666') alert('Adminläge aktivt!');
-            else alert('Fel lösenord');
+            await window.setDoc(window.doc(window.db, "votes", user), myVotes, { merge: true });
         };
 
         function render() {
             const user = localStorage.getItem('user');
-            let html = `<h2>Rösta som ${user}</h2>`;
+            let html = `<h2>Röstar som: ${user}</h2>`;
             countries.forEach(c => {
-                html += `<div class="card"><span>${c}</span>
+                html += `<div class="card">
+                    <span style="font-weight:600">${c}</span>
                     <select onchange="vote('${c}', this.value)">
                         <option value="">0p</option>
-                        <option value="1">1p</option><option value="2">2p</option><option value="8">8p</option><option value="10">10p</option><option value="12">12p</option>
+                        <option value="12" ${myVotes[c]=='12'?'selected':''}>12p</option>
+                        <option value="10" ${myVotes[c]=='10'?'selected':''}>10p</option>
+                        <option value="8" ${myVotes[c]=='8'?'selected':''}>8p</option>
+                        <option value="7" ${myVotes[c]=='7'?'selected':''}>7p</option>
+                        <option value="6" ${myVotes[c]=='6'?'selected':''}>6p</option>
                     </select>
                 </div>`;
             });
-            html += `<input type="password" id="pass" placeholder="Lösenord">
+            html += `<input type="password" id="pass" placeholder="Adminlösenord">
                      <button onclick="reveal()">Visa resultat</button>`;
             document.getElementById('app').innerHTML = html;
         }
