@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 // REPLACE THESE VALUES with your Firebase project configuration
 const firebaseConfig = {

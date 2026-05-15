@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import { competitors, Competitor } from './data/competitors';
+import { competitors } from './data/competitors';
 import { db, VOTES_COLLECTION, SETTINGS_COLLECTION, isMockMode } from './firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 function App() {
   const [user, setUser] = useState<string | null>(localStorage.getItem('euro-user'));
