@@ -1,13 +1,82 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>eurovision</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eurovision 2026</title>
+    <style>
+        :root { --purple: #3a0063; --gold: #ffd700; }
+        body { font-family: sans-serif; background: #1a002b; color: white; padding: 10px; text-align: center; }
+        .card { background: #3a0063; padding: 15px; margin: 10px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        input, select, button { padding: 12px; border-radius: 8px; border: none; width: 100%; margin: 5px 0; box-sizing: border-box; }
+        button { background: #ffd700; font-weight: bold; cursor: pointer; border: none; }
+        #app { max-width: 500px; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Eurovision 2026</h1>
+        <input type="text" id="name" placeholder="Ditt namn">
+        <button onclick="join()">Gå med</button>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAxDy6JBpEJaRTYOJs03nwUAdUHdghRn10",
+            authDomain: "eurovision-f26b6.firebaseapp.com",
+            projectId: "eurovision-f26b6",
+            storageBucket: "eurovision-f26b6.firebasestorage.app",
+            messagingSenderId: "792172036315",
+            appId: "1:792172036315:web:a3c5ddaf8ebe1a077c4cfe"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.db = db;
+        window.doc = doc;
+        window.setDoc = setDoc;
+        window.onSnapshot = onSnapshot;
+    </script>
+
+    <script>
+        const countries = ["Danmark", "Tyskland", "Israel", "Belgien", "Albanien", "Grekland", "Ukraina", "Australien", "Serbien", "Malta", "Tjeckien", "Bulgarien", "Kroatien", "Storbritannien", "Frankrike", "Moldavien", "Finland", "Polen", "Litauen", "Sverige", "Cypern", "Italien", "Norge", "Rumänien", "Österrike"];
+        
+        window.join = () => {
+            const name = document.getElementById('name').value;
+            if(!name) return;
+            localStorage.setItem('user', name);
+            render();
+        };
+
+        window.vote = async (country, pts) => {
+            const user = localStorage.getItem('user');
+            await window.setDoc(window.doc(window.db, "votes", user), { [country]: pts }, { merge: true });
+        };
+
+        window.reveal = () => {
+            if(document.getElementById('pass').value === 'stek666') alert('Adminläge aktivt!');
+            else alert('Fel lösenord');
+        };
+
+        function render() {
+            const user = localStorage.getItem('user');
+            let html = `<h2>Rösta som ${user}</h2>`;
+            countries.forEach(c => {
+                html += `<div class="card"><span>${c}</span>
+                    <select onchange="vote('${c}', this.value)">
+                        <option value="">0p</option>
+                        <option value="1">1p</option><option value="2">2p</option><option value="8">8p</option><option value="10">10p</option><option value="12">12p</option>
+                    </select>
+                </div>`;
+            });
+            html += `<input type="password" id="pass" placeholder="Lösenord">
+                     <button onclick="reveal()">Visa resultat</button>`;
+            document.getElementById('app').innerHTML = html;
+        }
+    </script>
+</body>
 </html>
