@@ -3,95 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eurovision 2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600&display=swap" rel="stylesheet">
+    <title>Eurovision 2026 - Röstning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0f0518;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --gold: #ffc107;
-            --accent: #e91e63;
+            --primary: #5e35b1;
+            --secondary: #ff0055;
+            --accent: #ffd700;
+            --dark: #0a0a0c;
+            --card-bg: #1a1a1f;
             --text: #ffffff;
         }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        #app { width: 100%; max-width: 450px; }
-        h1 { text-align: center; color: var(--gold); font-size: 2rem; margin-bottom: 20px; }
-        .login-box { background: var(--card-bg); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .card { background: var(--card-bg); padding: 15px; margin-bottom: 12px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-        .card:hover { border-color: var(--gold); }
-        input, select, button { padding: 14px; border-radius: 12px; border: 1px solid #444; width: 100%; margin: 10px 0; background: #1a1025; color: white; font-size: 16px; }
-        button { background: linear-gradient(45deg, var(--accent), var(--purple)); color: white; border: none; font-weight: 600; cursor: pointer; }
-        select { background-image: none; cursor: pointer; width: auto; }
-        h2 { font-size: 1.2rem; color: #bbb; margin-bottom: 20px; }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Setup Screen */
+        #setup-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2e1a47 0%, #0a0a0c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .setup-content {
+            background: var(--card-bg);
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .setup-content h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .setup-content input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            margin: 20px 0;
+            background: #000;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .setup-content input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Voting Screen */
+        header {
+            background: linear-gradient(180deg, rgba(94, 53, 177, 0.3) 0%, transparent 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+
+        #points-left {
+            background: rgba(255,255,255,0.1);
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            background: #25252b;
+            border-color: var(--primary);
+        }
+
+        .flag {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        .country-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .points-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--accent);
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 10;
+        }
+
+        .vote-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        /* Points Overlay */
+        .points-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 4000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .points-modal {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .points-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .point-btn {
+            background: #333;
+            border: none;
+            color: white;
+            padding: 15px 5px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .point-btn:hover:not(:disabled) {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .point-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* Admin & Misc */
+        #admin-trigger {
+            position: fixed; bottom: 20px; right: 20px;
+            opacity: 0.3; background: none; border: none; color: white; cursor: pointer;
+        }
+
+        #admin-panel {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark); z-index: 5000; padding: 40px 20px; overflow-y: auto;
+        }
+
+        .result-item {
+            display: flex; align-items: center; margin-bottom: 15px; background: rgba(255,255,255,0.05);
+            padding: 15px; border-radius: 15px;
+        }
+
+        .bar-container { flex-grow: 1; margin: 0 15px; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .bar { height: 100%; background: var(--accent); transition: width 1s ease; }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--accent); color: #000; padding: 12px 25px; border-radius: 30px;
+            font-weight: 700; opacity: 0; transition: opacity 0.3s; z-index: 6000;
+        }
+
+        @media (max-width: 480px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .points-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>Eurovision 2026</h1>
-        <div class="login-box">
-            <input type="text" id="name" placeholder="Ditt namn">
-            <button onclick="join()">Börja rösta</button>
+
+    <div id="setup-screen">
+        <div class="setup-content">
+            <h2>Eurovision 2026</h2>
+            <p>Vem vinner i Wien? Skriv ditt namn för att börja rösta.</p>
+            <input type="text" id="user-name" placeholder="Ditt namn..." autofocus>
+            <button onclick="startVoting()" class="vote-btn">Häng med!</button>
         </div>
     </div>
 
+    <div id="voting-screen" style="display: none;">
+        <header>
+            <h1 id="welcome-msg">Eurovision 2026</h1>
+            <p id="points-left">Laddar poäng...</p>
+        </header>
+
+        <div class="container">
+            <div class="grid" id="country-grid"></div>
+        </div>
+    </div>
+
+    <div id="points-overlay" class="points-overlay">
+        <div class="points-modal">
+            <h3 id="modal-title">Ge poäng till...</h3>
+            <div class="points-grid" id="points-grid"></div>
+            <button onclick="closeOverlay()" class="vote-btn" style="margin-top: 20px; background: #444;">Avbryt</button>
+        </div>
+    </div>
+
+    <button id="admin-trigger" onclick="openAdmin()">Admin</button>
+
+    <div id="admin-panel">
+        <div class="container" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h2>Live-resultat</h2>
+                <button onclick="closeAdmin()" class="vote-btn" style="width: auto;">Stäng</button>
+            </div>
+            <div id="results-list"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAxDy6JBpEJaRTYOJs03nwUAdUHdghRn10",
             authDomain: "eurovision-f26b6.firebaseapp.com",
+            databaseURL: "https://eurovision-f26b6-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "eurovision-f26b6",
             storageBucket: "eurovision-f26b6.firebasestorage.app",
             messagingSenderId: "792172036315",
-            appId: "1:792172036315:web:a3c5ddaf8ebe1a077c4cfe"
+            appId: "1:792172036315:web:a3c5ddaf8ebe1a077c4cfe",
+            measurementId: "G-ST4DG1WH5T"
         };
-        window.db = getFirestore(initializeApp(firebaseConfig));
-        window.doc = doc;
-        window.setDoc = setDoc;
-    </script>
 
-    <script>
-        const countries = ["Danmark", "Tyskland", "Israel", "Belgien", "Albanien", "Grekland", "Ukraina", "Australien", "Serbien", "Malta", "Tjeckien", "Bulgarien", "Kroatien", "Storbritannien", "Frankrike", "Moldavien", "Finland", "Polen", "Litauen", "Sverige", "Cypern", "Italien", "Norge", "Rumänien", "Österrike"];
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const countries = [
+            { id: "AL", name: "Albanien", flag: "🇦🇱" }, { id: "AM", name: "Armenien", flag: "🇦🇲" },
+            { id: "AU", name: "Australien", flag: "🇦🇺" }, { id: "AT", name: "Österrike", flag: "🇦🇹" },
+            { id: "AZ", name: "Azerbajdzjan", flag: "🇦🇿" }, { id: "BE", name: "Belgien", flag: "🇧🇪" },
+            { id: "BG", name: "Bulgarien", flag: "🇧🇬" }, { id: "HR", name: "Kroatien", flag: "🇭🇷" },
+            { id: "CY", name: "Cypern", flag: "🇨🇾" }, { id: "CZ", name: "Tjeckien", flag: "🇨🇿" },
+            { id: "DK", name: "Danmark", flag: "🇩🇰" }, { id: "EE", name: "Estland", flag: "🇪🇪" },
+            { id: "FI", name: "Finland", flag: "🇫🇮" }, { id: "FR", name: "Frankrike", flag: "🇫🇷" },
+            { id: "GE", name: "Georgien", flag: "🇬🇪" }, { id: "DE", name: "Tyskland", flag: "🇩🇪" },
+            { id: "GR", name: "Grekland", flag: "🇬🇷" }, { id: "IL", name: "Israel", flag: "🇮🇱" },
+            { id: "IT", name: "Italien", flag: "🇮🇹" }, { id: "LV", name: "Lettland", flag: "🇱🇻" },
+            { id: "LT", name: "Litauen", flag: "🇱🇹" }, { id: "LU", name: "Luxemburg", flag: "🇱🇺" },
+            { id: "MT", name: "Malta", flag: "🇲🇹" }, { id: "MD", name: "Moldavien", flag: "🇲🇩" },
+            { id: "ME", name: "Montenegro", flag: "🇲🇪" }, { id: "NO", name: "Norge", flag: "🇳🇴" },
+            { id: "PL", name: "Polen", flag: "🇵🇱" }, { id: "PT", name: "Portugal", flag: "🇵🇹" },
+            { id: "RO", name: "Rumänien", flag: "🇷🇴" }, { id: "SM", name: "San Marino", flag: "🇸🇲" },
+            { id: "RS", name: "Serbien", flag: "🇷🇸" }, { id: "SE", name: "Sverige", flag: "🇸🇪" },
+            { id: "CH", name: "Schweiz", flag: "🇨🇭" }, { id: "UA", name: "Ukraina", flag: "🇺🇦" },
+            { id: "GB", name: "Storbritannien", flag: "🇬🇧" }
+        ];
+
+        let userName = "";
+        let availablePoints = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12];
         let myVotes = {};
+        let selectedCountry = null;
 
-        window.join = () => {
-            const name = document.getElementById('name').value;
-            if(!name) return;
-            localStorage.setItem('user', name);
-            render();
+        window.startVoting = function() {
+            const input = document.getElementById('user-name');
+            userName = input.value.trim();
+            if (userName.length < 2) return alert("Skriv ditt namn!");
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('voting-screen').style.display = 'block';
+            document.getElementById('welcome-msg').textContent = `Heja ${userName}!`;
+            updatePointsHeader();
+            renderCountries();
         };
 
-        window.vote = async (country, pts) => {
-            if (pts !== "" && Object.values(myVotes).includes(pts)) {
-                alert("Du har redan gett " + pts + " poäng till ett annat land!");
-                render();
-                return;
-            }
-            myVotes[country] = pts;
-            const user = localStorage.getItem('user');
-            await window.setDoc(window.doc(window.db, "votes", user), myVotes, { merge: true });
-        };
-
-        function render() {
-            const user = localStorage.getItem('user');
-            let html = `<h2>Röstar som: ${user}</h2>`;
+        function renderCountries() {
+            const grid = document.getElementById('country-grid');
+            grid.innerHTML = '';
             countries.forEach(c => {
-                html += `<div class="card">
-                    <span style="font-weight:600">${c}</span>
-                    <select onchange="vote('${c}', this.value)">
-                        <option value="">0p</option>
-                        <option value="12" ${myVotes[c]=='12'?'selected':''}>12p</option>
-                        <option value="10" ${myVotes[c]=='10'?'selected':''}>10p</option>
-                        <option value="8" ${myVotes[c]=='8'?'selected':''}>8p</option>
-                        <option value="7" ${myVotes[c]=='7'?'selected':''}>7p</option>
-                        <option value="6" ${myVotes[c]=='6'?'selected':''}>6p</option>
-                    </select>
-                </div>`;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <span class="points-badge" id="badge-${c.id}">${myVotes[c.id] || ''}p</span>
+                    <span class="flag">${c.flag}</span>
+                    <span class="country-name">${c.name}</span>
+                    ${myVotes[c.id] ? '' : `<button class="vote-btn">Ge poäng</button>`}
+                `;
+                if (myVotes[c.id]) {
+                    card.querySelector('.points-badge').style.display = 'block';
+                    card.style.borderColor = 'var(--accent)';
+                }
+                card.onclick = () => { if (!myVotes[c.id]) openPoints(c.id); };
+                grid.appendChild(card);
             });
-            html += `<input type="password" id="pass" placeholder="Adminlösenord">
-                     <button onclick="reveal()">Visa resultat</button>`;
-            document.getElementById('app').innerHTML = html;
+        }
+
+        function openPoints(id) {
+            selectedCountry = id;
+            const country = countries.find(c => c.id === id);
+            document.getElementById('modal-title').textContent = `Hur många poäng till ${country.name}?`;
+            const pGrid = document.getElementById('points-grid');
+            pGrid.innerHTML = '';
+            [1, 2, 3, 4, 5, 6, 7, 8, 10, 12].forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'point-btn';
+                btn.textContent = p;
+                if (!availablePoints.includes(p)) btn.disabled = true;
+                btn.onclick = () => submitVote(p);
+                pGrid.appendChild(btn);
+            });
+            document.getElementById('points-overlay').style.display = 'flex';
+        }
+
+        window.closeOverlay = () => document.getElementById('points-overlay').style.display = 'none';
+
+        function submitVote(p) {
+            const cid = selectedCountry;
+            const voteRef = ref(db, 'votes/' + cid);
+            runTransaction(voteRef, (curr) => (curr || 0) + p).then(() => {
+                myVotes[cid] = p;
+                availablePoints = availablePoints.filter(val => val !== p);
+                closeOverlay();
+                renderCountries();
+                updatePointsHeader();
+                showToast(`Gav ${p} poäng till ${countries.find(c => c.id === cid).name}!`);
+            });
+        }
+
+        function updatePointsHeader() {
+            const el = document.getElementById('points-left');
+            if (availablePoints.length === 0) {
+                el.textContent = "Alla poäng utdelade!";
+                el.style.color = "#4caf50";
+            } else {
+                el.textContent = "Kvar att ge: " + availablePoints.join(", ");
+            }
+        }
+
+        window.openAdmin = () => {
+            if (prompt("Kod:") === "stek1337") {
+                document.getElementById('admin-panel').style.display = 'block';
+                onValue(ref(db, 'votes'), (snap) => renderResults(snap.val() || {}));
+            }
+        };
+
+        window.closeAdmin = () => document.getElementById('admin-panel').style.display = 'none';
+
+        function renderResults(votes) {
+            const list = document.getElementById('results-list');
+            list.innerHTML = '';
+            const sorted = countries.map(c => ({...c, score: votes[c.id] || 0})).sort((a,b) => b.score - a.score);
+            const max = Math.max(...sorted.map(s => s.score), 1);
+            sorted.forEach((item, i) => {
+                const row = document.createElement('div');
+                row.className = 'result-item';
+                row.innerHTML = `
+                    <span style="width: 30px; font-weight: 800;">${i+1}</span>
+                    <span style="width: 120px">${item.flag} ${item.name}</span>
+                    <div class="bar-container"><div class="bar" style="width: ${(item.score/max)*100}%"></div></div>
+                    <span style="font-weight: 800; min-width: 40px; text-align: right;">${item.score}p</span>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.textContent = m; t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 3000);
         }
     </script>
 </body>
