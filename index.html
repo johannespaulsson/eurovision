@@ -308,6 +308,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // --- DIN FIREBASE KONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyAxDy6JBpEJaRTYOJs03nwUAdUHdghRn10",
             authDomain: "eurovision-f26b6.firebaseapp.com",
@@ -319,8 +320,10 @@
             measurementId: "G-ST4DG1WH5T"
         };
 
+        console.log("Ansluter till Firebase...");
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        console.log("Firebase initierad!");
 
         const countries = [
             { id: "AL", name: "Albanien", flag: "🇦🇱" }, { id: "AM", name: "Armenien", flag: "🇦🇲" },
